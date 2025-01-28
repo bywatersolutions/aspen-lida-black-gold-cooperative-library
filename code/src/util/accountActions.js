@@ -399,6 +399,9 @@ export async function freezeHold(cancelId, recordId, source, url, patronId, sele
      });
      const response = await api.post('/UserAPI?method=freezeHold', postBody);
 
+     //console.log("freeze hold result");
+     //console.log(response);
+
      if (response.ok) {
           //console.log(response);
           const fetchedData = response.data;
@@ -451,35 +454,50 @@ export async function freezeHolds(data, url, selectedReactivationDate = null, la
                     userId: hold.patronId,
                },
           });
+          //console.log("Freezing " + hold.recordId);
           const response = await api.post('/UserAPI?method=freezeHold', postBody);
           if (response.ok) {
                const fetchedData = response.data;
                const result = fetchedData.result;
 
-               if (result.success === true) {
+               //console.log("Freeze Hold for " + hold.recordId + " finished");
+               //console.log(result);
+
+               if (result.success == true) {
                     numSuccess = numSuccess + 1;
                } else {
                     numFailed = numFailed + 1;
                }
           } else {
                popToast(getTermFromDictionary(language, 'error_no_server_connection'), getTermFromDictionary(language, 'error_no_library_connection'), 'error');
+               console.log("Did not get a good response freezing hold " + hold.recordId);
                console.log(response);
+               numFailed = numFailed + 1;
           }
      });
 
+     //Wait for all actions to finish
+     const results = await Promise.all(holdsToFreeze);
+
      //await reloadHolds();
+     //console.log("Done freezing holds, numSuccess = " + numSuccess + " numFailed = " + numFailed);
 
      let message = '';
      let status = 'success';
+     let title = getTermFromDictionary(language, 'holds_frozen');
      if (numSuccess > 0) {
           message = message.concat(numSuccess + ' holds frozen successfully.');
      }
 
      if (numFailed > 0) {
-          status = 'warning';
+          status = 'error';
           message = message.concat(' Unable to freeze ' + numFailed + ' holds.');
+          if (numSuccess == 0) {
+               title = getTermFromDictionary(language, 'unable_freeze_hold');
+          }
      }
-     popAlert(getTermFromDictionary(language, 'holds_frozen'), message, status);
+
+     popAlert(title, message, status);
 }
 
 export async function thawHold(cancelId, recordId, source, url, patronId, language = 'en') {
