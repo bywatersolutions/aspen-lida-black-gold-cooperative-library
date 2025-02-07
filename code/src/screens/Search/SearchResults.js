@@ -1,11 +1,28 @@
-import { Button, ButtonGroup, ButtonIcon, ButtonText, Heading, Box, Center, FlatList, HStack, Pressable, Text, SafeAreaView, Badge, BadgeText, VStack } from '@gluestack-ui/themed';
+import {
+     Button,
+     ButtonGroup,
+     ButtonIcon,
+     ButtonText,
+     Heading,
+     Box,
+     Center,
+     FlatList,
+     HStack,
+     Pressable,
+     Text,
+     SafeAreaView,
+     Badge,
+     BadgeText,
+     VStack,
+     Input, InputSlot, InputIcon, InputField, FormControl
+} from '@gluestack-ui/themed';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { create } from 'apisauce';
 import { Image } from 'expo-image';
 import * as WebBrowser from 'expo-web-browser';
 import _ from 'lodash';
-import { SlidersHorizontalIcon } from 'lucide-react-native';
+import {ScanBarcode, SearchIcon, SlidersHorizontalIcon, XIcon} from 'lucide-react-native';
 import moment from 'moment';
 
 import { useColorModeValue, useToken } from 'native-base';
@@ -17,7 +34,7 @@ import { DisplaySystemMessage } from '../../components/Notifications';
 
 import { LanguageContext, LibraryBranchContext, LibrarySystemContext, SearchContext, SystemMessagesContext, UserContext, ThemeContext } from '../../context/initialContext';
 import { getCleanTitle } from '../../helpers/item';
-import { navigate } from '../../helpers/RootNavigator';
+import {navigate, navigateStack} from '../../helpers/RootNavigator';
 import { getTermFromDictionary, getTranslationsWithValues } from '../../translations/TranslationService';
 import { createAuthTokens, getHeaders, postData } from '../../util/apiAuth';
 import { GLOBALS } from '../../util/globals';
@@ -183,9 +200,6 @@ export const SearchResults = () => {
                          <Text bold w="75%" textAlign="center" color={textColor}>
                               {route.params?.term}
                          </Text>
-                         <Button variant="solid" bgColor={theme['colors']['primary']['500']} mt="$3" onPress={() => navigation.dispatch(CommonActions.goBack())}>
-                              <ButtonText color={theme['colors']['primary']['500-text']}>{getTermFromDictionary(language, 'new_search_button')}</ButtonText>
-                         </Button>
                     </Center>
                </>
           );
@@ -201,6 +215,7 @@ export const SearchResults = () => {
                ) : (
                     <Box flex={1}>
                          {data.totalResults > 0 ? <FilterBar /> : null}
+                         <SearchBox term={term} />
                          <FlatList data={data.results} ListHeaderComponent={Header} ListFooterComponent={Paging} ListEmptyComponent={NoResults} renderItem={({ item }) => <DisplayResult data={item} />} keyExtractor={(item, index) => index.toString()} />
                     </Box>
                )}
@@ -456,11 +471,11 @@ const FilterBar = () => {
           return (
                <Box
                     padding="$2"
+                    paddingBottom="$0"
                     sx={{
                          bg: colorMode === 'light' ? theme['colors']['coolGray']['100'] : theme['colors']['coolGray']['700'],
                          borderColor: colorMode === 'light' ? theme['colors']['coolGray']['200'] : theme['colors']['gray']['600'],
                     }}
-                    borderBottomWidth={1}
                     flexWrap="nowrap">
                     <ScrollView horizontal>
                          <Button
@@ -485,6 +500,51 @@ const FilterBar = () => {
           );
      }
 };
+
+const SearchBox = (props) => {
+     const navigation = useNavigation();
+     const { term } = props;
+     const { language } = React.useContext(LanguageContext);
+     const { theme, colorMode, textColor } = React.useContext(ThemeContext);
+     const [searchTerm, setSearchTerm] = React.useState(term);
+
+     const openScanner = async () => {
+          navigateStack('BrowseTab', 'Scanner');
+     };
+
+     const clearSearch = () => {
+          setSearchTerm('');
+     }
+
+     const updateSearch = async () => {
+          setSearchTerm(searchTerm);
+          navigation.dispatch(CommonActions.setParams({ term: searchTerm }));
+     };
+
+     return (
+         <Box padding="$2" sx={{
+              bg: colorMode === 'light' ? theme['colors']['coolGray']['100'] : theme['colors']['coolGray']['700'],
+              borderColor: colorMode === 'light' ? theme['colors']['coolGray']['200'] : theme['colors']['gray']['600'],
+         }} borderBottomWidth={1}>
+              <FormControl pb="$5">
+                   <Input>
+                        <InputSlot>
+                             <InputIcon as={SearchIcon} ml="$2" color={textColor} />
+                        </InputSlot>
+                        <InputField returnKeyType="search" variant="outline" autoCapitalize="none" onChangeText={(term) => setSearchTerm(term)} status="info" placeholder={getTermFromDictionary(language, 'search')} onSubmitEditing={updateSearch} value={searchTerm} size="lg" sx={{ color: textColor, borderColor: textColor, ':focus': { borderColor: textColor } }} />
+                        {searchTerm ? (
+                             <InputSlot onPress={() => clearSearch()}>
+                                  <InputIcon as={XIcon} mr="$2" color={textColor} />
+                             </InputSlot>
+                        ) : null}
+                        <InputSlot onPress={() => openScanner()}>
+                             <InputIcon as={ScanBarcode} mr="$2" color={textColor} />
+                        </InputSlot>
+                   </Input>
+              </FormControl>
+         </Box>
+     )
+}
 
 const CreateFilterButtonDefaults = () => {
      const navigation = useNavigation();
