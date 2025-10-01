@@ -98,7 +98,13 @@ export const SelectYourLibrary = (payload) => {
                </Button>
                <Modal isOpen={showModal} size="lg" avoidKeyboard onClose={() => setShowModal(false)}>
                     <ModalBackdrop />
-                    <ModalContent bgColor={colorMode === 'light' ? theme['colors']['warmGray']['50'] : theme['colors']['coolGray']['700']} h={filteredLibraries.length === 0 ? "auto" : isKeyboardOpen ? "40%" : "80%"} maxH={filteredLibraries.length === 0 ? "400" : isKeyboardOpen ? "40%" : "80%"}>
+                    <ModalContent
+                         bgColor={colorMode === 'light' ? theme['colors']['warmGray']['50'] : theme['colors']['coolGray']['700']}
+                         h={filteredLibraries.length === 0 ? "auto" : isKeyboardOpen ? "65%" : "80%"}
+                         maxH={filteredLibraries.length === 0 ? "400" : isKeyboardOpen ? "65%" : "80%"}
+                         marginTop={isKeyboardOpen ? insets.top + 16 : "auto"}
+                         marginBottom={isKeyboardOpen ? "auto" : "auto"}
+                    >
                          <ModalHeader borderBottomWidth="$1" borderBottomColor={colorMode === 'light' ? theme['colors']['warmGray']['300'] : theme['colors']['coolGray']['500']}>
                               <Heading size="md" color={textColor}>{getTermFromDictionary('en', 'find_your_library')}</Heading>
                               <ModalCloseButton hitSlop={{ top: 30, bottom: 30, left: 30, right: 30 }}>
