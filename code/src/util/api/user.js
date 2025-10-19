@@ -619,9 +619,12 @@ export async function addLinkedAccount(username = '', password = '', url, langua
                     try {
                          popAlert(response.data.result.title, response.data.result.message, 'success');
                     } catch (e) {
-                         logDebugMessage(e);
+                         logErrorMessage(e);
                     }
                }
+          } else {
+               logDebugMessage("disableAccountLinking did not return a success status");
+               logErrorMessage(response);
           }
           return status;
      } else {
@@ -664,6 +667,9 @@ export async function removeLinkedAccount(patronToRemove, url, language) {
                          logDebugMessage(e);
                     }
                }
+          } else {
+               logDebugMessage("disableAccountLinking did not return a success status");
+               logErrorMessage(response);
           }
           return status;
      } else {
@@ -702,6 +708,9 @@ export async function removeViewerAccount(patronToRemove, url, language = 'en') 
                } else {
                     popAlert(response.data.result.title, response.data.result.message, 'success');
                }
+          } else {
+               logDebugMessage("disableAccountLinking did not return a success status");
+               logErrorMessage(response);
           }
           return status;
      } else {
@@ -738,6 +747,9 @@ export async function disableAccountLinking(language, url) {
                } else {
                     popAlert(response.data.result.title, response.data.result.message, 'success');
                }
+          } else {
+               logDebugMessage("disableAccountLinking did not return a success status");
+               logErrorMessage(response);
           }
           return status;
      } else {
