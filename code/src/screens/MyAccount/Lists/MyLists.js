@@ -13,7 +13,7 @@ import { DisplaySystemMessage } from '../../../components/Notifications';
 import { LanguageContext, LibrarySystemContext, SystemMessagesContext, ThemeContext, UserContext } from '../../../context/initialContext';
 import { navigateStack } from '../../../helpers/RootNavigator';
 import { getTermFromDictionary } from '../../../translations/TranslationService';
-import { formatLists, getListDetails, getLists, getListTitles } from '../../../util/api/list';
+import { formatLists, getListDetails, getListGroups, getLists, getListTitles } from '../../../util/api/list';
 import CreateList from './CreateList';
 import { logDebugMessage, logErrorMessage } from '../../../util/logging';
 import { getErrorMessage } from '../../../util/apiAuth';
@@ -25,7 +25,7 @@ export const MyLists = () => {
      const hasPendingChanges = useRoute().params.hasPendingChanges ?? false;
      const { user } = React.useContext(UserContext);
      const { library } = React.useContext(LibrarySystemContext);
-     const { lists, updateLists } = React.useContext(UserContext);
+     const { lists, updateLists, listGroups, updateListGroups } = React.useContext(UserContext);
      const { language } = React.useContext(LanguageContext);
 
      const [loading, setLoading] = React.useState(false);
@@ -42,6 +42,7 @@ export const MyLists = () => {
                if (hasPendingChanges) {
                     setLoading(true);
                     queryClient.invalidateQueries({ queryKey: ['lists', user.id, library.baseUrl, language] });
+                    queryClient.invalidateQueries({ queryKey: ['list_groups', user.id, library.baseUrl, language] });
                     navigation.setParams({
                          hasPendingChanges: false,
                     });
@@ -73,6 +74,32 @@ export const MyLists = () => {
           },
           onError: (error) => {
                logDebugMessage("Error fetching user lists");
+               logErrorMessage(error);
+          }
+     });
+
+     useQuery(['list_groups', user.id, library.baseUrl, language], () => getListGroups(library.baseUrl), {
+          initialData: listGroups,
+          onSuccess: (data) => {
+               if(data.ok) {
+                    const groups = {
+                         groups: data.data?.result?.groups ?? [],
+                         unassigned: data.data?.result?.unassigned ?? []
+                    };
+                    console.log(groups);
+                    updateListGroups(groups)
+               } else {
+                    logDebugMessage("Error fetching user list groups");
+                    logDebugMessage(data);
+                    getErrorMessage(data.code ?? 0, data.problem);
+               }
+               setLoading(false);
+          },
+          onSettle: (data) => {
+               setLoading(false);
+          },
+          onError: (error) => {
+               logDebugMessage("Error fetching user list groups");
                logErrorMessage(error);
           }
      });
