@@ -186,7 +186,7 @@ export const MyLists = () => {
      const listEmptyComponent = () => {
           return (
                <Center mt={5} mb={5}>
-                    <Text bold fontSize="$lg">
+                    <Text bold fontSize="$lg" color={textColor}>
                          {getTermFromDictionary(language, 'no_lists_yet')}
                     </Text>
                </Center>
@@ -197,7 +197,6 @@ export const MyLists = () => {
           let lastUpdated = moment.unix(item.dateUpdated);
           lastUpdated = moment(lastUpdated).format('MMM D, YYYY');
           const listLastUpdatedOn = getTermFromDictionary(language, 'last_updated_on') + ' ' + lastUpdated;
-          const numListItems = item.numTitles ?? 0 + ' ' + getTermFromDictionary(language, 'items');
           let privacy = getTermFromDictionary(language, 'private');
           if (item.public === 1 || item.public === true || item.public === 'true') {
                privacy = getTermFromDictionary(language, 'public');
@@ -211,8 +210,7 @@ export const MyLists = () => {
                          }}
                          pl="$1"
                          pr="$1"
-                         py="$2"
-                         >
+                         py="$2">
                          <HStack space={3} mt="$2" mb="$2" justifyContent="flex-start">
                               <VStack space={1}>
                                    <Image
@@ -227,7 +225,9 @@ export const MyLists = () => {
                                         transition={1000}
                                         contentFit="cover"
                                    />
-                                   <Badge mt={1}><BadgeText>{privacy}</BadgeText></Badge>
+                                   <Badge mt={1}>
+                                        <BadgeText>{privacy}</BadgeText>
+                                   </Badge>
                               </VStack>
                               <VStack space={1} justifyContent="space-between" maxW="80%" pl="$2">
                                    <Box>
@@ -243,7 +243,7 @@ export const MyLists = () => {
                                              {listLastUpdatedOn}
                                         </Text>
                                         <Text fontSize="$xs" italic color={textColor}>
-                                             {numListItems}
+                                             {item.numTitles ?? 0} {getTermFromDictionary(language, 'items')}
                                         </Text>
                                    </Box>
                               </VStack>
@@ -269,13 +269,13 @@ export const MyLists = () => {
      }
 
      return (
-          <SafeAreaView style={{ flex: 1 }}>
-                    <Box px="$5" flexWrap="nowrap">
+          <Box style={{ flex: 1 }}>
+                    <Box pt="$2" px="$5" flexWrap="nowrap">
                          {showSystemMessage()}
                          <ScrollView horizontal>
                               <ButtonGroup space="sm">
                                    <CreateList setLoading={setLoading} />
-                                   <CreateListGroup setLoading={setLoading} />
+                                   <CreateListGroup setLoading={setLoading} updateSelectedListGroup={updateSelectedListGroup} />
                               </ButtonGroup>
                          </ScrollView>
                     </Box>
@@ -283,10 +283,10 @@ export const MyLists = () => {
                          <Box px="$5" mt="$2">
                               <Select name="listGroupSelect" selectedValue={currentListGroup} defaultValue={defaultListGroup} onValueChange={(itemValue) => updateSelectedListGroup(itemValue)}>
                                    <SelectTrigger variant="outline" size="md">
-                                        {currentListGroup && currentListGroup != "-1" ? (
+                                        {currentListGroup && currentListGroup !== "-1" && currentListGroup !== -1 ? (
                                              _.map(Object.values(listGroups.groups), function (group, selectedIndex, array) {
                                                   if (group.id === currentListGroup) {
-                                                       return <SelectInput placeholder={group.title} value={group.id} color={textColor} />;
+                                                       return <SelectInput value={group.title} color={textColor} />;
                                                   }
                                              })
                                         ) : currentListGroup == "-1" ? (
@@ -323,13 +323,13 @@ export const MyLists = () => {
                                              </ScrollView>
                                         )}
                                         </Box>
-                                        <FlatList mt="$2" data={currentListGroupData.listsInGroup} renderItem={({ item }) => renderList(item, library.baseUrl)} keyExtractor={(item, index) => index.toString()} ListEmptyComponent={listEmptyComponent} />
+                                        <FlatList contentContainerStyle={{ paddingBottom: 200 }} mt="$2" data={currentListGroupData.listsInGroup} renderItem={({ item }) => renderList(item, library.baseUrl)} keyExtractor={(item, index) => index.toString()} ListEmptyComponent={listEmptyComponent} />
                                    </Box>
                               ) : null}
                          </Box>
                     ) : (
                          <FlatList px="$5" mt="$2" data={lists} ListEmptyComponent={listEmptyComponent} renderItem={({ item }) => renderList(item, library.baseUrl)} keyExtractor={(item, index) => index.toString()} />
                     )}
-          </SafeAreaView>
+          </Box>
      );
 };
