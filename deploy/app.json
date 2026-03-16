@@ -1,0 +1,15 @@
+{
+  "name": "Black Gold Cooperative Library",
+  "slug": "black-gold-cooperative-library",
+  "easId": "547661cc-c07f-49a5-b2ae-554a27cf5650",
+  "reverseDns": "org.aspendiscovery.blackgold",
+  "discoveryUrl": "https://blackgold.aspendiscovery.org/",
+  "greenhouseUrl": "https://blackgold.aspendiscovery.org/",
+  "libraryId": "5",
+  "themeId": "1",
+  "background": "#ffffff",
+  "sentryProject": "aspen-lida-black-gold",
+  "sentryDsn": "https://cf50d256f83bc230111f3aa23270164a@o994439.ingest.sentry.io/4506073129156608",
+  "ascAppId": "6470394887",
+  "logLevel": "0"
+}
